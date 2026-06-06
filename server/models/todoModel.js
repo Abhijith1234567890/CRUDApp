@@ -16,12 +16,4 @@ const todoSchema = new mongoose.Schema(
   { timestamps: true, versionKey: false },
 )
 
-todoSchema.set('toJSON', {
-  transform(_document, todo) {
-    todo.id = todo._id.toString()
-    delete todo._id
-    return todo
-  },
-})
-
 export default mongoose.model('Todo', todoSchema)
