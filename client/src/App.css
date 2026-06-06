@@ -1,5 +1,5 @@
 .container {
-  width: 400px;
+  width: 420px;
   margin: 50px auto;
   padding: 20px;
   border: 2px solid #333;
@@ -59,9 +59,47 @@ li span {
   text-align: left;
 }
 
+.edit-input {
+  flex: 1;
+  padding: 4px 6px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+}
+
+.edit-input:focus {
+  border-color: #4a90d9;
+  box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.2);
+}
+
 .complete {
   text-decoration: line-through;
   color: gray;
+}
+
+.edit-btn {
+  background-color: #f0a500;
+}
+
+.edit-btn:hover {
+  background-color: #c98400;
+}
+
+.save-btn {
+  background-color: #28a745;
+}
+
+.save-btn:hover {
+  background-color: #1e7e34;
+}
+
+.cancel-btn {
+  background-color: #6c757d;
+}
+
+.cancel-btn:hover {
+  background-color: #545b62;
 }
 
 .delete-btn {
