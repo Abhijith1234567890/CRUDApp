@@ -13,7 +13,7 @@ const todoSchema = new mongoose.Schema(
       default: false,
     },
   },
-  { timestamps: true, versionKey: false },
+  { timestamps: true},
 )
 
 export default mongoose.model('Todo', todoSchema)
