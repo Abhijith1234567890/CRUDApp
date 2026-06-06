@@ -2,15 +2,11 @@
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-}
-
 .container {
-  width: min(92%, 480px);
-  margin: 20px auto;
-  padding: 16px;
+  max-width: 420px;
+  width: 90%;
+  margin: 50px auto;
+  padding: 20px;
   border: 2px solid #333;
   border-radius: 10px;
   background-color: white;
@@ -20,49 +16,35 @@ body {
 h1 {
   color: blue;
   margin-bottom: 20px;
-  font-size: clamp(1.2rem, 5vw, 1.8rem);
 }
-
-/* ── Input box ── */
 
 .input-box {
   display: flex;
-  gap: 8px;
+  gap: 5px;
   margin-bottom: 20px;
 }
 
 .input-box input {
   flex: 1;
-  min-width: 0;
-  padding: 10px 8px;
+  padding: 8px;
   border-radius: 5px;
   border: 1px solid gray;
-  font-size: 16px; /* prevents auto-zoom on iOS */
+  min-width: 0;
 }
 
-/* ── Buttons ── */
-
 button {
-  padding: 10px 12px;
+  padding: 8px 12px;
   border: none;
   background-color: blue;
   border-radius: 5px;
   color: white;
   cursor: pointer;
-  font-size: 14px;
   white-space: nowrap;
-  touch-action: manipulation; /* removes 300ms tap delay on mobile */
 }
 
 button:hover {
   background-color: darkblue;
 }
-
-button:active {
-  opacity: 0.8;
-}
-
-/* ── List ── */
 
 ul {
   padding: 0;
@@ -72,54 +54,111 @@ ul {
 li {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: 8px;
   margin-top: 10px;
-  padding: 10px 8px;
+  padding: 8px;
   border: 1px solid gray;
   background-color: #eeeeee;
-  border-radius: 4px;
 }
 
-/* ── Todo row: checkbox + text ── */
-
-.todo-main {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;
-}
-
-.todo-main input[type='checkbox'] {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  cursor: pointer;
-  accent-color: blue;
-}
-
-.todo-main span {
+li span {
   flex: 1;
   text-align: left;
   word-break: break-word;
 }
 
-/* ── Todo actions: Edit/Delete or Save/Cancel ── */
-
-.todo-actions {
-  display: flex;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-/* ── Edit input ── */
-
 .edit-input {
   flex: 1;
-  min-width: 0;
-  padding: 6px 8px;
+  padding: 4px 6px;
   border: 1px solid #aaa;
   border-radius: 4px;
-  font-size: 16px; /* prevents auto-zoom on iOS */
+  font-size: 14px;
   outline: none;
+  min-width: 0;
+}
+
+.edit-input:focus {
+  border-color: #4a90d9;
+  box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.2);
+}
+
+.complete {
+  text-decoration: line-through;
+  color: gray;
+}
+
+.edit-btn {
+  background-color: #f0a500;
+}
+
+.edit-btn:hover {
+  background-color: #c98400;
+}
+
+.save-btn {
+  background-color: #28a745;
+}
+
+.save-btn:hover {
+  background-color: #1e7e34;
+}
+
+.cancel-btn {
+  background-color: #6c757d;
+}
+
+.cancel-btn:hover {
+  background-color: #545b62;
+}
+
+.delete-btn {
+  background-color: red;
+}
+
+.delete-btn:hover {
+  background-color: darkred;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .container {
+    width: 95%;
+    margin: 16px auto;
+    padding: 14px;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+    margin-bottom: 14px;
+  }
+
+  button {
+    padding: 7px 9px;
+    font-size: 13px;
+  }
+
+  li {
+    gap: 6px;
+    padding: 6px;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+  li {
+    flex-wrap: wrap;
+  }
+
+  li input[type='checkbox'] {
+    order: -2;
+    align-self: flex-start;
+    margin-top: 2px;
+  }
+
+  li span,
+  .edit-input {
+    order: -1;
+    flex: unset;
+    width: calc(100% - 26px);
+  }
+}
