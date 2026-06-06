@@ -6,99 +6,86 @@ const API_URL = 'https://crudapp-79bk.onrender.com/api/todos'
 const STORAGE_KEY = 'todos'
 
 function getTodosFromStorage() {
-  const savedTodos = localStorage.getItem(STORAGE_KEY)
-
-  if (savedTodos) {
-    return JSON.parse(savedTodos)
-  }
-
-  return []
+  const saved = localStorage.getItem(STORAGE_KEY)
+  return saved ? JSON.parse(saved) : []
 }
 
 function App() {
   const [task, setTask] = useState('')
   const [todos, setTodos] = useState(getTodosFromStorage)
+  const [editingId, setEditingId] = useState(null)
+  const [editText, setEditText] = useState('')
 
-  function saveToLocalStorage(newTodos) {
+  function updateTodos(newTodos) {
+    setTodos(newTodos)
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newTodos))
   }
 
   function addTodo() {
-    if (task.trim() === '') {
+    if (!task.trim()) {
       alert('Please enter a task')
       return
     }
 
-    const newTodo = {
-      id: Date.now(),
-      text: task,
-      completed: false,
-    }
-
-    const updatedTodos = [...todos, newTodo]
-    setTodos(updatedTodos)
-    saveToLocalStorage(updatedTodos)
+    const tempId = Date.now()
+    const newTodo = { id: tempId, text: task.trim(), completed: false }
+    const updated = [...todos, newTodo]
+    updateTodos(updated)
     setTask('')
 
     axios
-      .post(API_URL, { title: task })
-      .then((response) => {
-        const savedTodo = {
-          id: response.data.id,
-          text: response.data.title,
-          completed: response.data.completed,
-        }
-
-        const apiTodos = updatedTodos.map((todo) => {
-          if (todo.id === newTodo.id) {
-            return savedTodo
-          }
-
-          return todo
-        })
-
-        setTodos(apiTodos)
-        saveToLocalStorage(apiTodos)
+      .post(API_URL, { title: newTodo.text })
+      .then(({ data }) => {
+        const apiTodo = { id: data.id, text: data.title, completed: data.completed }
+        updateTodos(updated.map((t) => (t.id === tempId ? apiTodo : t)))
       })
-      .catch(() => {
-        console.log('Task saved in local storage')
-      })
+      .catch(() => console.log('API unavailable, saved locally'))
   }
 
-  function completeTodo(id) {
-    const currentTodo = todos.find((todo) => todo.id === id)
+  function toggleComplete(id) {
+    const todo = todos.find((t) => t.id === id)
+    if (!todo) return
 
-    const updatedTodos = todos.map((todo) => {
-      if (todo.id === id) {
-        return { ...todo, completed: !todo.completed }
-      }
+    const updated = todos.map((t) =>
+      t.id === id ? { ...t, completed: !t.completed } : t
+    )
+    updateTodos(updated)
 
-      return todo
-    })
+    axios
+      .put(`${API_URL}/${id}`, { title: todo.text, completed: !todo.completed })
+      .catch(() => console.log('API unavailable, updated locally'))
+  }
 
-    setTodos(updatedTodos)
-    saveToLocalStorage(updatedTodos)
+  function startEdit(todo) {
+    setEditingId(todo.id)
+    setEditText(todo.text)
+  }
 
-    if (currentTodo) {
-      axios
-        .put(`${API_URL}/${id}`, {
-          title: currentTodo.text,
-          completed: !currentTodo.completed,
-        })
-        .catch(() => {
-          console.log('Task updated in local storage')
-        })
-    }
+  function cancelEdit() {
+    setEditingId(null)
+    setEditText('')
+  }
+
+  function saveEdit(id) {
+    const trimmed = editText.trim()
+    if (!trimmed) return
+
+    const todo = todos.find((t) => t.id === id)
+    if (!todo) return
+
+    const updated = todos.map((t) => (t.id === id ? { ...t, text: trimmed } : t))
+    updateTodos(updated)
+    setEditingId(null)
+    setEditText('')
+
+    axios
+      .put(`${API_URL}/${id}`, { title: trimmed, completed: todo.completed })
+      .catch(() => console.log('API unavailable, updated locally'))
   }
 
   function deleteTodo(id) {
-    const remainingTodos = todos.filter((todo) => todo.id !== id)
-    setTodos(remainingTodos)
-    saveToLocalStorage(remainingTodos)
-
-    axios.delete(`${API_URL}/${id}`).catch(() => {
-      console.log('Task deleted from local storage')
-    })
+    updateTodos(todos.filter((t) => t.id !== id))
+    axios.delete(`${API_URL}/${id}`).catch(() => console.log('API unavailable, deleted locally'))
   }
 
   return (
@@ -110,7 +97,8 @@ function App() {
           type="text"
           placeholder="Enter task"
           value={task}
-          onChange={(event) => setTask(event.target.value)}
+          onChange={(e) => setTask(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && addTodo()}
         />
         <button onClick={addTodo}>Add</button>
       </div>
@@ -121,16 +109,35 @@ function App() {
             <input
               type="checkbox"
               checked={todo.completed}
-              onChange={() => completeTodo(todo.id)}
+              onChange={() => toggleComplete(todo.id)}
             />
 
-            <span className={todo.completed ? 'complete' : ''}>
-              {todo.text}
-            </span>
+            {editingId === todo.id ? (
+              <input
+                className="edit-input"
+                value={editText}
+                autoFocus
+                onChange={(e) => setEditText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') saveEdit(todo.id)
+                  if (e.key === 'Escape') cancelEdit()
+                }}
+              />
+            ) : (
+              <span className={todo.completed ? 'complete' : ''}>{todo.text}</span>
+            )}
 
-            <button className="delete-btn" onClick={() => deleteTodo(todo.id)}>
-              Delete
-            </button>
+            {editingId === todo.id ? (
+              <>
+                <button className="save-btn" onClick={() => saveEdit(todo.id)}>Save</button>
+                <button className="cancel-btn" onClick={cancelEdit}>Cancel</button>
+              </>
+            ) : (
+              <>
+                <button className="edit-btn" onClick={() => startEdit(todo)}>Edit</button>
+                <button className="delete-btn" onClick={() => deleteTodo(todo.id)}>Delete</button>
+              </>
+            )}
           </li>
         ))}
       </ul>
