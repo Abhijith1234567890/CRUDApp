@@ -2,7 +2,7 @@ import { useState } from 'react'
 import axios from 'axios'
 import './App.css'
 
-const API_URL = 'http://localhost:5000/api/todos'
+const API_URL = 'https://crudapp-79bk.onrender.com/api/todos'
 const STORAGE_KEY = 'todos'
 
 function getTodosFromStorage() {
